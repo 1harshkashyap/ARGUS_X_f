@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+body {
+    background: black;
+    color: white;
+}
+
+canvas {
+    filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.5));
+}
+
+.cinematic {
+    background: black;
+    filter: contrast(1.2) brightness(0.8);
+}
