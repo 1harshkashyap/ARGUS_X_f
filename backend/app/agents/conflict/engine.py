@@ -26,5 +26,10 @@ class ConflictEngine:
             "attack": attack,
             "defended": defended,
             "result": result,
-            "strategy": strategy
+            "strategy": strategy,
+            "learning": {
+                "red_policy": self.red.get_learning_state(),
+                "blue_policy": self.blue.get_learning_state()
+            },
+            "prediction": self.red.get_learning_state()
         }

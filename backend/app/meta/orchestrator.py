@@ -12,12 +12,25 @@ class MetaOrchestrator:
 
         dominance = (red - blue) / total
 
-        if dominance > 0.3:
-            decision = "System under attack pressure → prioritize defense"
-        elif dominance < -0.3:
-            decision = "System over-defensive → increase attack diversity"
+        learning = analysis.get("learning", {})
+        red_policy = learning.get("red_policy", {})
+        
+        decision = "System balanced → maintain current strategy"
+        
+        if red_policy:
+            # Find the most successful attack
+            top_attack = max(red_policy.items(), key=lambda x: x[1])
+            if top_attack[1] > 0.6:
+                decision = f"CRITICAL: {top_attack[0]} success too high ({int(top_attack[1]*100)}%) → system vulnerable"
+            elif dominance > 0.3:
+                decision = "System under attack pressure → prioritize defense"
+            elif dominance < -0.3:
+                decision = "System over-defensive → increase attack diversity"
         else:
-            decision = "System balanced → maintain current strategy"
+            if dominance > 0.3:
+                decision = "System under attack pressure → prioritize defense"
+            elif dominance < -0.3:
+                decision = "System over-defensive → increase attack diversity"
 
         timestamp = datetime.now().strftime('%H:%M:%S')
         log_entry = f"[{timestamp}] {decision}"

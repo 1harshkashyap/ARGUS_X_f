@@ -24,19 +24,22 @@ class Firewall:
             self.model = ort.InferenceSession("model.onnx")
 
     def load_dynamic_rules(self) -> None:
-        response = (
-            self.supabase
-            .table("dynamic_rules")
-            .select("rule_pattern")
-            .eq("active", True)
-            .execute()
-        )
-        if response.data:
-            for row in response.data:
-                pattern = row.get("rule_pattern")
-                if pattern:
-                    compiled = re.compile(pattern, re.IGNORECASE)
-                    self.dynamic_rules.append(compiled)
+        try:
+            response = (
+                self.supabase
+                .table("dynamic_rules")
+                .select("rule_pattern")
+                .eq("active", True)
+                .execute()
+            )
+            if response.data:
+                for row in response.data:
+                    pattern = row.get("rule_pattern")
+                    if pattern:
+                        compiled = re.compile(pattern, re.IGNORECASE)
+                        self.dynamic_rules.append(compiled)
+        except Exception as e:
+            print(f"Warning: Could not connect to Supabase to load dynamic rules. Proceeding without them. ({e})")
 
     def check_input(self, text: str) -> bool:
         for rule in self.static_rules:

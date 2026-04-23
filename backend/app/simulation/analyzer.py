@@ -5,9 +5,12 @@ class SimulationAnalyzer:
 
         best_strategy = "Red dominant" if red_wins > blue_wins else "Blue dominant"
 
+        learning_state = results[-1].get("learning", {}) if results else {}
+
         return {
             "total_cycles": len(results),
             "red_wins": red_wins,
             "blue_wins": blue_wins,
-            "best_strategy": best_strategy
+            "best_strategy": best_strategy,
+            "learning": learning_state
         }
