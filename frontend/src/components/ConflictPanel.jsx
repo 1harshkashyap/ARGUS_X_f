@@ -1,5 +1,22 @@
+import React, { useRef, useEffect, useState } from 'react';
+
 export default function ConflictPanel({ events, meta }) {
     const conflicts = events.filter(e => e.type === "conflict");
+    const prevConf = useRef(0);
+    const [trend, setTrend] = useState("");
+
+    useEffect(() => {
+        if (meta && meta.confidence !== undefined) {
+            if (meta.confidence > prevConf.current) {
+                setTrend("System Confidence Increasing...");
+            } else if (meta.confidence < prevConf.current) {
+                setTrend("System Vulnerability Increasing...");
+            } else {
+                setTrend("System Learning...");
+            }
+            prevConf.current = meta.confidence;
+        }
+    }, [meta?.confidence]);
 
     const getRiskColor = (prob) => {
         if (prob >= 0.7) return "text-red-500";
@@ -29,8 +46,11 @@ export default function ConflictPanel({ events, meta }) {
                             </div>
                         ))}
                     </div>
-                    <div className="text-xs text-gray-600 mt-2 pt-2 border-t border-gray-800">
-                        Active Confidence: {meta.confidence?.toFixed(2)}
+                    <div className="text-xs text-gray-600 mt-2 pt-2 border-t border-gray-800 flex justify-between">
+                        <span>Active Confidence: {meta.confidence?.toFixed(2)}</span>
+                        <span className={trend.includes("Increasing") ? "text-green-500 animate-pulse" : "text-yellow-500 animate-pulse"}>
+                            {trend}
+                        </span>
                     </div>
                 </div>
             )}
