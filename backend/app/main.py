@@ -18,6 +18,8 @@ from app.core.dispatcher import Dispatcher
 from app.agents.conflict.engine import ConflictEngine
 from app.simulation.engine import SimulationEngine
 from app.simulation.analyzer import SimulationAnalyzer
+from app.evolution.engine import EvolutionEngine
+from app.meta.orchestrator import MetaOrchestrator
 
 
 app = FastAPI()
@@ -49,6 +51,8 @@ dispatcher = Dispatcher()
 conflict_engine = ConflictEngine()
 sim_engine = SimulationEngine()
 sim_analyzer = SimulationAnalyzer()
+evo_engine = EvolutionEngine()
+meta_orchestrator = MetaOrchestrator()
 
 connections = []
 
@@ -124,8 +128,12 @@ async def run_conflict():
 def simulate(cycles: int = 100):
     results = sim_engine.run(cycles)
     analysis = sim_analyzer.analyze(results)
+    meta = meta_orchestrator.observe(analysis)
+    adjustments = evo_engine.evolve(analysis, meta)
 
     return {
         "analysis": analysis,
+        "evolution": adjustments,
+        "meta": meta,
         "sample": results[:5]
     }

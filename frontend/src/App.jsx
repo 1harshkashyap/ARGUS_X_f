@@ -14,6 +14,7 @@ export default function App() {
     const [cinematic, setCinematic] = useState(false);
     const [paused, setPaused] = useState(false);
     const [frozenEvents, setFrozenEvents] = useState([]);
+    const [metaData, setMetaData] = useState(null);
     
     const visibleEvents = paused ? frozenEvents : (events || []);
     const latest = visibleEvents.length > 0 ? visibleEvents[0] : null;
@@ -62,11 +63,21 @@ export default function App() {
     }, []);
 
     useEffect(() => {
-        const interval = setInterval(() => {
+        const conflictInterval = setInterval(() => {
             fetch("/api/v1/conflict");
         }, 3000);
 
-        return () => clearInterval(interval);
+        const simulateInterval = setInterval(() => {
+            fetch("/api/v1/simulate?cycles=50")
+                .then(res => res.json())
+                .then(data => setMetaData(data.meta))
+                .catch(err => console.error(err));
+        }, 5000);
+
+        return () => {
+            clearInterval(conflictInterval);
+            clearInterval(simulateInterval);
+        };
     }, []);
 
     return (
@@ -104,7 +115,7 @@ export default function App() {
             </div>
 
             <div className="col-span-1 border-t border-l border-gray-700">
-                <ConflictPanel events={visibleEvents} />
+                <ConflictPanel events={visibleEvents} meta={metaData} />
             </div>
 
             <div className="col-span-1 border-t border-l border-gray-700">
